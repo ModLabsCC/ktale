@@ -66,12 +66,9 @@ subprojects {
     extensions.configure<PublishingExtension> {
         repositories {
             mavenLocal()
-            // Remote publishing is opt-in to keep local builds + CI safe by default.
-            // Set `KTALE_PUBLISH_REMOTE=true` (and provide creds) to enable Nexus publishing.
-            val enableRemote = System.getenv("KTALE_PUBLISH_REMOTE")?.equals("true", ignoreCase = true) == true
             val user = System.getenv("NEXUS_USER")
             val pass = System.getenv("NEXUS_PASS")
-            if (enableRemote && !user.isNullOrBlank() && !pass.isNullOrBlank()) {
+            if (!user.isNullOrBlank() && !pass.isNullOrBlank()) {
                 maven {
                     name = "ModLabs"
                     url = uri("https://nexus.modlabs.cc/repository/maven-public/")
