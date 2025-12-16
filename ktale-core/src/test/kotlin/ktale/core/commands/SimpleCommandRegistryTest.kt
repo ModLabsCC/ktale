@@ -58,6 +58,29 @@ class SimpleCommandRegistryTest : FunSpec({
         val res = registry.dispatch(ctx)
         (res is CommandResult.UsageError) shouldBe true
     }
+
+    test("Commands Kotlin DSL builder produces a usable definition") {
+        val registry = SimpleCommandRegistry()
+        val sender = mockk<CommandSender>()
+        every { sender.name } returns "Tester"
+        every { sender.sendMessage(any()) } returns Unit
+        every { sender.hasPermission(any()) } returns true
+
+        registry.register(
+            Commands.command("ping") {
+                aliases("p")
+                execute { CommandResult.Success }
+            }
+        )
+
+        val ctx = object : CommandContext {
+            override val sender: CommandSender = sender
+            override val label: String = "p"
+            override val args: List<String> = emptyList()
+        }
+
+        registry.dispatch(ctx) shouldBe CommandResult.Success
+    }
 })
 
 

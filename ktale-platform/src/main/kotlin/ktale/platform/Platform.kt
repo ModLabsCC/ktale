@@ -9,6 +9,13 @@ package ktale.platform
  * - no assumptions about Hytale APIs
  * - no entity/world modeling
  *
+ * ## Unknown host model (explicit uncertainty)
+ * KTale deliberately does not commit (yet) to whether it will be used as:
+ * - a plugin/mod SDK hosted by an official server runtime, or
+ * - a bundled/custom server software distribution that embeds KTale as its core.
+ *
+ * Both models can be represented by an implementation of this boundary without changing `ktale-api`.
+ *
  * Core implementations may depend on this boundary, but the boundary must remain portable
  * across unknown future server APIs.
  */
