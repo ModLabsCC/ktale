@@ -3,7 +3,9 @@ package ktale.api
 import ktale.api.commands.CommandRegistry
 import ktale.api.config.ConfigManager
 import ktale.api.events.EventBus
+import ktale.api.inventory.Container
 import ktale.api.logging.KtaleLogger
+import ktale.api.prefabs.PrefabStore
 import ktale.api.scheduler.Scheduler
 import ktale.api.services.ServiceRegistry
 
@@ -41,6 +43,13 @@ public interface PluginContext {
      * to unknown server/container lifecycles.
      */
     public val services: ServiceRegistry
+
+    /**
+     * Prefab storage/hosting, if the platform supports it.
+     *
+     * Platforms that do not expose prefabs can return `null`.
+     */
+    public val prefabs: PrefabStore?
 }
 
 

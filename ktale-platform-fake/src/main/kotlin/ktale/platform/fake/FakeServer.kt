@@ -3,13 +3,9 @@ package ktale.platform.fake
 import ktale.api.KtalePlugin
 import ktale.api.PluginContext
 import ktale.api.events.Event
-import ktale.core.DefaultPluginContext
-import ktale.core.commands.SimpleCommandRegistry
-import ktale.core.config.CoreConfigManager
-import ktale.core.config.InMemoryConfigTextStore
+// DefaultPluginContext is composed by CoreRuntime.
 import ktale.core.events.SimpleEventBus
-import ktale.core.scheduler.HookBackedScheduler
-import ktale.core.services.SimpleServiceRegistry
+import ktale.core.runtime.CoreRuntime
 
 /**
  * Fully controllable fake server runtime.
@@ -22,26 +18,16 @@ import ktale.core.services.SimpleServiceRegistry
 public class FakeServer(
     public val platform: FakePlatform = FakePlatform(),
 ) {
-    public val events: SimpleEventBus = SimpleEventBus()
-    public val commands: SimpleCommandRegistry = SimpleCommandRegistry()
-    public val scheduler: HookBackedScheduler = HookBackedScheduler(platform.schedulerHooks)
-    public val services: SimpleServiceRegistry = SimpleServiceRegistry()
-    public val configs: CoreConfigManager = CoreConfigManager(InMemoryConfigTextStore(), platform.loggers.logger("fake-config"))
+    private val runtime = CoreRuntime(platform, ktale.core.config.InMemoryConfigTextStore())
 
-    init {
-        platform.commandBridge.bind(commands)
-    }
+    public val events: SimpleEventBus get() = runtime.events as SimpleEventBus
+    public val commands get() = runtime.commands
+    public val scheduler get() = runtime.scheduler
+    public val services get() = runtime.services
+    public val configs get() = runtime.configs
 
     public fun createContext(pluginId: String): PluginContext =
-        DefaultPluginContext(
-            pluginId = pluginId,
-            platform = platform,
-            events = events,
-            scheduler = scheduler,
-            commands = commands,
-            configs = configs,
-            services = services,
-        )
+        runtime.pluginContext(pluginId)
 
     /** Simulates the plugin lifecycle using the fake runtime. */
     public fun runPlugin(pluginId: String, plugin: KtalePlugin, block: (PluginContext) -> Unit = {}) {

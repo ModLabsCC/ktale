@@ -12,6 +12,7 @@ plugins {
     // Root is an aggregator. Subprojects apply Kotlin + publishing.
     kotlin("jvm") version "2.2.21" apply false
     kotlin("plugin.serialization") version "2.2.21" apply false
+    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 allprojects {
@@ -31,6 +32,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
+    apply(plugin = "org.jetbrains.dokka")
     // Root build only wires compilation + testing.
     // Publishing is configured per-module later (kept out of root to avoid Gradle plugin ordering pitfalls).
 

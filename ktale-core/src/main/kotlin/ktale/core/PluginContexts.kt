@@ -4,6 +4,7 @@ import ktale.api.PluginContext
 import ktale.api.commands.CommandRegistry
 import ktale.api.config.ConfigManager
 import ktale.api.events.EventBus
+import ktale.api.prefabs.PrefabStore
 import ktale.api.logging.KtaleLogger
 import ktale.api.scheduler.Scheduler
 import ktale.api.services.ServiceRegistry
@@ -24,6 +25,7 @@ public class DefaultPluginContext(
     override val commands: CommandRegistry,
     override val configs: ConfigManager,
     override val services: ServiceRegistry,
+    override val prefabs: PrefabStore? = null,
 ) : PluginContext {
     override val logger: KtaleLogger = platform.loggers.logger(pluginId)
 }

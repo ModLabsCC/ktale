@@ -10,8 +10,10 @@ import ktale.api.commands.Permission
  */
 public class FakePlayer(
     override val name: String,
-    private val permissions: MutableSet<String> = mutableSetOf(),
+    private val permissions: MutableSet<String>,
 ) : CommandSender {
+    public constructor(name: String) : this(name, mutableSetOf())
+
     public val messages: MutableList<String> = mutableListOf()
 
     override fun sendMessage(message: String) {
