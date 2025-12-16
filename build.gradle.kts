@@ -1,95 +1,55 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.*
+import org.gradle.api.tasks.testing.Test
+import java.util.Calendar
+import java.util.TimeZone
 
 plugins {
-    kotlin("jvm") version "2.2.21"
-    id("maven-publish")
+    // Root is an aggregator. Subprojects apply Kotlin + publishing.
+    kotlin("jvm") version "2.2.21" apply false
+    kotlin("plugin.serialization") version "2.2.21" apply false
 }
 
-group = "cc.modlabs"
-version = System.getenv("VERSION_OVERRIDE") ?: Calendar.getInstance(TimeZone.getTimeZone("UTC")).run {
-    "${get(Calendar.YEAR)}.${get(Calendar.MONTH) + 1}.${get(Calendar.DAY_OF_MONTH)}.${String.format("%02d%02d", get(Calendar.HOUR_OF_DAY), get(Calendar.MINUTE))}"
+allprojects {
+    group = "cc.modlabs"
+    version = System.getenv("VERSION_OVERRIDE") ?: Calendar.getInstance(TimeZone.getTimeZone("UTC")).run {
+        "${get(Calendar.YEAR)}.${get(Calendar.MONTH) + 1}.${get(Calendar.DAY_OF_MONTH)}.${
+            String.format("%02d%02d", get(Calendar.HOUR_OF_DAY), get(Calendar.MINUTE))
+        }"
+    }
+
+    repositories {
+        maven("https://nexus.modlabs.cc/repository/maven-mirrors/")
+    }
 }
 
-repositories {
-    maven("https://nexus.modlabs.cc/repository/maven-mirrors/")
-}
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    // Root build only wires compilation + testing.
+    // Publishing is configured per-module later (kept out of root to avoid Gradle plugin ordering pitfalls).
 
-dependencies {
-    testImplementation(kotlin("test"))
+    dependencies {
+        add("testImplementation", kotlin("test"))
+        add("testImplementation", "io.kotest:kotest-runner-junit5:5.9.1")
+        add("testImplementation", "io.kotest:kotest-assertions-core:5.9.1")
+        add("testImplementation", "io.mockk:mockk:1.13.14")
+    }
 
-    implementation("cc.modlabs:KlassicX:${project.ext["klassicXVersion"] as String}")
-}
-
-tasks {
-    withType<JavaCompile> {
+    tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
         options.release.set(21)
     }
 
-    withType<KotlinCompile> {
+    tasks.withType<KotlinCompile> {
         compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
     }
-}
 
-kotlin {
-    jvmToolchain(21)
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-tasks.register<Jar>("sourcesJar") {
-    description = "Generates the sources jar for this project."
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "ModLabs"
-            url = uri("https://nexus.modlabs.cc/repository/maven-public/")
-            credentials {
-                username = System.getenv("NEXUS_USER")
-                password = System.getenv("NEXUS_PASS")
-            }
-        }
-        mavenLocal()
+    extensions.configure<KotlinJvmProjectExtension> {
+        jvmToolchain(21)
     }
-    publications {
-        create<MavenPublication>("maven") {
 
-            from(components["java"])
-
-            artifact(tasks.named("sourcesJar"))
-
-            pom {
-                name.set("KTale")
-                description.set("A utility library designed to simplify plugin development with Hytale and Kotlin.")
-                url.set("https://github.com/ModLabsCC/ktale")
-                licenses {
-                    license {
-                        name.set("GPL-3.0")
-                        url.set("https://github.com/ModLabsCC/ktale/blob/main/LICENSE")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("ModLabsCC")
-                        name.set("ModLabsCC")
-                        email.set("contact@modlabs.cc")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com/ModLabsCC/ktale.git")
-                    developerConnection.set("scm:git:git@github.com:ModLabsCC/ktale.git")
-                    url.set("https://github.com/ModLabsCC/ktale")
-                }
-            }
-        }
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 }
