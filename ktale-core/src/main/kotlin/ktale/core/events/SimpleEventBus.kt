@@ -46,9 +46,9 @@ public class SimpleEventBus : EventBus {
 
     override fun <E : Event> subscribe(
         type: Class<E>,
+        listener: EventListener<E>,
         priority: EventPriority,
         ignoreCancelled: Boolean,
-        listener: EventListener<E>,
     ): EventSubscription {
         val reg = RegisteredListener(type, priority, ignoreCancelled, listener)
         listeners.add(reg)

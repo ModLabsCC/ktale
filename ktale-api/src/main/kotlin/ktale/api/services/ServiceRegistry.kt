@@ -14,7 +14,12 @@ public interface ServiceRegistry {
      * @param replace if `true`, replaces any existing service of the same [type]
      * @throws IllegalStateException if a service already exists and [replace] is `false`
      */
-    public fun <T : Any> register(type: Class<T>, instance: T, replace: Boolean = false)
+    public fun <T : Any> register(type: Class<T>, instance: T, replace: Boolean)
+
+    /** Java-friendly overload (does not replace). */
+    public fun <T : Any> register(type: Class<T>, instance: T) {
+        register(type, instance, replace = false)
+    }
 
     /** Returns a service instance if registered, otherwise `null`. */
     public fun <T : Any> get(type: Class<T>): T?

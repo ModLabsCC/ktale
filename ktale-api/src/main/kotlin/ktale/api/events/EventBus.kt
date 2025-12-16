@@ -27,10 +27,22 @@ public interface EventBus {
      */
     public fun <E : Event> subscribe(
         type: Class<E>,
-        priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = false,
         listener: EventListener<E>,
+        priority: EventPriority,
+        ignoreCancelled: Boolean,
     ): EventSubscription
+
+    /**
+     * Java-friendly overload: defaults to [EventPriority.NORMAL], not ignoring cancelled events.
+     */
+    public fun <E : Event> subscribe(type: Class<E>, listener: EventListener<E>): EventSubscription =
+        subscribe(type, listener, EventPriority.NORMAL, ignoreCancelled = false)
+
+    /**
+     * Java-friendly overload: defaults to not ignoring cancelled events.
+     */
+    public fun <E : Event> subscribe(type: Class<E>, priority: EventPriority, listener: EventListener<E>): EventSubscription =
+        subscribe(type, listener, priority, ignoreCancelled = false)
 }
 
 /**
@@ -40,16 +52,6 @@ public inline fun <reified E : Event> EventBus.subscribe(
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
     noinline listener: (E) -> Unit,
-): EventSubscription = subscribe(E::class.java, priority, ignoreCancelled, EventListener(listener))
-
-/**
- * Java convenience overload.
- */
-public fun <E : Event> EventBus.subscribe(
-    type: Class<E>,
-    priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = false,
-    listener: (E) -> Unit,
-): EventSubscription = subscribe(type, priority, ignoreCancelled, EventListener(listener))
+): EventSubscription = subscribe(E::class.java, EventListener(listener), priority, ignoreCancelled)
 
 

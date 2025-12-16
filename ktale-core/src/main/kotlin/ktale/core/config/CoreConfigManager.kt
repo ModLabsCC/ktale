@@ -41,9 +41,7 @@ public class CoreConfigManager(
         }
 
         if (version != key.version) {
-            logger.warn(
-                "Config '${key.id}' could not be fully migrated (have=$version want=${key.version}); using best-effort decode."
-            )
+            logger.warn("Config '${key.id}' could not be fully migrated (have=$version want=${key.version}); using best-effort decode.")
         }
 
         return try {

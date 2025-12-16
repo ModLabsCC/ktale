@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import ktale.api.events.Cancellable
 import ktale.api.events.Event
+import ktale.api.events.EventListener
 import ktale.api.events.EventPriority
 
 class SimpleEventBusTest : FunSpec({
@@ -11,10 +12,10 @@ class SimpleEventBusTest : FunSpec({
         val bus = SimpleEventBus()
         val order = mutableListOf<String>()
 
-        bus.subscribe(TestEvent::class.java, EventPriority.LATE, false) { order += "late" }
-        bus.subscribe(TestEvent::class.java, EventPriority.EARLY, false) { order += "early" }
-        bus.subscribe(TestEvent::class.java, EventPriority.NORMAL, false) { order += "normal" }
-        bus.subscribe(TestEvent::class.java, EventPriority.FINAL, false) { order += "final" }
+        bus.subscribe(TestEvent::class.java, EventPriority.LATE, EventListener { order += "late" })
+        bus.subscribe(TestEvent::class.java, EventPriority.EARLY, EventListener { order += "early" })
+        bus.subscribe(TestEvent::class.java, EventPriority.NORMAL, EventListener { order += "normal" })
+        bus.subscribe(TestEvent::class.java, EventPriority.FINAL, EventListener { order += "final" })
 
         bus.post(TestEvent())
 
@@ -25,12 +26,18 @@ class SimpleEventBusTest : FunSpec({
         val bus = SimpleEventBus()
         val order = mutableListOf<String>()
 
-        bus.subscribe(TestCancellableEvent::class.java, EventPriority.NORMAL, ignoreCancelled = true) {
-            order += "ignored"
-        }
-        bus.subscribe(TestCancellableEvent::class.java, EventPriority.NORMAL, ignoreCancelled = false) {
-            order += "always"
-        }
+        bus.subscribe(
+            TestCancellableEvent::class.java,
+            EventListener { order += "ignored" },
+            EventPriority.NORMAL,
+            ignoreCancelled = true,
+        )
+        bus.subscribe(
+            TestCancellableEvent::class.java,
+            EventListener { order += "always" },
+            EventPriority.NORMAL,
+            ignoreCancelled = false,
+        )
 
         bus.post(TestCancellableEvent(isCancelled = true))
 
