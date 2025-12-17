@@ -1,0 +1,64 @@
+---
+title: Modules
+---
+
+KTale is a Kotlin multi-module project:
+
+## `ktale-api`
+
+Stable public **contracts only**:
+
+- plugin lifecycle (`KtalePlugin`)
+- events (`EventBus`)
+- scheduler (`Scheduler`)
+- commands (`CommandRegistry`)
+- configs (`ConfigManager`)
+- logging (`KtaleLogger`)
+- service registry (`ServiceRegistry`)
+- capability contracts like models/prefabs/attributes/containers (keyed, not enum-based)
+
+## `ktale-core`
+
+Minimal default implementations (platform-neutral):
+
+- `SimpleEventBus`
+- `SimpleCommandRegistry` + `Commands` builder
+- `CoreConfigManager` (+ YAML codec helpers)
+- `SimpleServiceRegistry`
+- `CoreRuntime` wiring helper
+- `AutoRegistrar` (optional convenience)
+
+## `ktale-platform`
+
+Platform boundary interfaces (no game logic):
+
+- `Platform`, `PlatformClock`, `PlatformSchedulerHooks`, `PlatformCommandBridge`, logger factory
+
+## `ktale-platform-fake`
+
+Deterministic fake platform for tests and demos:
+
+- `FakeServer`, `FakePlatform`
+- deterministic clock + controllable scheduler
+- command bridge for inbound dispatch simulation
+
+## `ktale-platform-hytale`
+
+Placeholder module:
+
+- `HytalePlatformPlaceholder` (fails loudly; TODO-only)
+- `ktale.experimental.hypothesis` package (explicit speculation)
+
+## `ktale-runtime-deps`
+
+Runtime dependency manifest + Maven resolver utilities for the “standalone host” model.
+
+## `ktale-runtime-host`
+
+Standalone host utilities that can load plugin jars and build isolated classloaders.
+
+## `ktale-gradle-plugin`
+
+Gradle plugin that writes `.dependencies` / `.repositories` (and optionally `ktale-plugin.properties`) into jars.
+
+

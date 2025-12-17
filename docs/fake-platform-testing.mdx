@@ -1,0 +1,32 @@
+---
+title: Fake platform & testing
+---
+
+KTale ships a deterministic fake platform so you can test plugins without any real server:
+
+- deterministic clock
+- controllable scheduler execution
+- simulated command dispatch
+- event simulation via `EventBus`
+
+## Example (Kotlin)
+
+```kotlin
+import ktale.platform.fake.FakeServer
+import ktale.api.KtalePlugin
+import ktale.api.PluginContext
+
+val server = FakeServer()
+
+val plugin = object : KtalePlugin {
+  override fun onLoad(context: PluginContext) {}
+  override fun onEnable(context: PluginContext) { /* register stuff */ }
+  override fun onDisable(context: PluginContext) {}
+}
+
+server.runPlugin("demo", plugin) { ctx ->
+  // drive fake scheduler or dispatch commands here
+}
+```
+
+

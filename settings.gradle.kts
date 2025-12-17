@@ -9,4 +9,7 @@ include(
     "ktale-platform",
     "ktale-platform-fake",
     "ktale-platform-hytale",
+    "ktale-runtime-deps",
+    "ktale-gradle-plugin",
+    "ktale-runtime-host",
 )

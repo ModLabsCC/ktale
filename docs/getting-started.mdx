@@ -1,0 +1,46 @@
+---
+title: Getting started
+---
+
+## Install (Gradle)
+
+KTale is a multi-module library. Most plugins will depend on:
+
+- `ktale-api` (interfaces/contracts)
+- `ktale-core` (default implementations)
+
+Example (Kotlin DSL):
+
+```kotlin
+dependencies {
+  implementation("cc.modlabs:ktale-api:<version>")
+  implementation("cc.modlabs:ktale-core:<version>")
+}
+```
+
+## Your first plugin
+
+KTale plugin entrypoint is `ktale.api.KtalePlugin`:
+
+```kotlin
+import ktale.api.KtalePlugin
+import ktale.api.PluginContext
+
+class MyPlugin : KtalePlugin {
+  override fun onLoad(context: PluginContext) {}
+  override fun onEnable(context: PluginContext) {}
+  override fun onDisable(context: PluginContext) {}
+}
+```
+
+### Java plugins
+
+All major contracts are Java-first:
+
+- schedulers use `Runnable` + `java.time.Duration`
+- event subscription uses `Class<T>` + `EventListener<T>`
+- services use `Class<T>` for lookup/registration
+
+See [Java usage](./plugins-java.mdx).
+
+

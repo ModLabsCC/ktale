@@ -1,0 +1,31 @@
+---
+title: Standalone host (bundled server model)
+---
+
+KTale supports an alternate “host model” where KTale is part of a **bundled/custom server distribution**.
+In this model, plugins can remain **unshaded** and the host downloads dependencies at runtime.
+
+## Plugin packaging
+
+Standalone host expects plugin jars to contain:
+
+- `ktale-plugin.properties`
+  - `id=<pluginId>`
+  - `main=<fully.qualified.ClassName>` (implements `ktale.api.KtalePlugin`)
+- optional `.dependencies` / `.repositories`
+
+## Runtime pieces
+
+- `ktale-runtime-deps`: reads manifests + resolves Maven deps into a cache
+- `ktale-runtime-host`: loads jars, builds isolated classloaders, instantiates `KtalePlugin`
+
+## Auto-registration
+
+Standalone host enables plug-and-play:
+
+- `@AutoCommand` on `CommandDefinition` classes
+- `@SubscribeEvent` on listener methods
+
+See [Auto-registration](./auto-registration.mdx).
+
+

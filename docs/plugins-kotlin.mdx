@@ -1,0 +1,40 @@
+---
+title: Kotlin plugin usage
+---
+
+## Core idea
+
+Plugins receive a `PluginContext` and interact only with capabilities:
+
+```kotlin
+import ktale.api.KtalePlugin
+import ktale.api.PluginContext
+import ktale.api.events.subscribe
+import ktale.core.commands.Commands
+import java.time.Duration
+
+class DemoPlugin : KtalePlugin {
+  override fun onLoad(context: PluginContext) {}
+
+  override fun onEnable(context: PluginContext) {
+    // Events
+    context.events.subscribe<MyEvent> { context.logger.info("event!") }
+
+    // Commands
+    context.commands.register(
+      Commands.command("ping") {
+        execute { CommandResult.Success }
+      }
+    )
+
+    // Scheduler
+    context.scheduler.runSyncDelayed(Duration.ofSeconds(1)) {
+      context.logger.info("tick")
+    }
+  }
+
+  override fun onDisable(context: PluginContext) {}
+}
+```
+
+

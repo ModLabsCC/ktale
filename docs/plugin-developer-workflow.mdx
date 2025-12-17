@@ -1,0 +1,220 @@
+---
+title: Plugin developer workflow (end-to-end)
+---
+
+This guide is a **full workflow** for KTale plugin developers:
+
+1) install dependencies  
+2) create an entrypoint  
+3) register commands + listeners (manual or plug-and-play)  
+4) use features (prefabs, models, attributes, containers, items)  
+5) test everything without a real server  
+6) optional: package for the standalone host model (dependency manifest + runtime resolution)
+
+## 0) Choose your host model (important)
+
+KTale supports two host models:
+
+- **Plugin/mod SDK hosted by an official server runtime** (future)
+- **Bundled/standalone server distribution that embeds KTale** (available today via `ktale-runtime-host`)
+
+This guide shows both. If you are targeting a future official server, focus on `ktale-api` + `ktale-core` + `ktale-platform-*` and skip the “standalone host” sections.
+
+## 1) Install (Gradle)
+
+Most plugins depend on:
+
+- `ktale-api`
+- `ktale-core`
+
+Example (Gradle Kotlin DSL):
+
+```kotlin
+dependencies {
+  implementation("cc.modlabs:ktale-api:<version>")
+  implementation("cc.modlabs:ktale-core:<version>")
+}
+```
+
+### Optional (standalone host packaging)
+
+If you want a clean, unshaded jar and let the standalone host download deps:
+
+```kotlin
+plugins {
+  id("cc.modlabs.ktale-deps")
+}
+
+ktaleDeps {
+  // Standalone host descriptor (required for ktale-runtime-host)
+  pluginId.set("my-plugin")
+  mainClass.set("com.example.MyPlugin")
+
+  // Extra dependencies to record (in addition to first-level runtime deps)
+  deliver("com.foo:bar:1.2.3")
+
+  // Extra repos
+  repository("jitpack", "https://jitpack.io/")
+
+  // Repo with auth using env var names (secrets are NOT stored in the jar)
+  repositoryWithAuth("private", "https://repo.example.com/maven/", "REPO_USER", "REPO_PASS")
+}
+```
+
+This emits into your jar:
+
+- `.dependencies`
+- optional `.repositories`
+- `ktale-plugin.properties`
+
+## 2) Create a plugin entrypoint
+
+Implement `ktale.api.KtalePlugin`:
+
+```kotlin
+import ktale.api.KtalePlugin
+import ktale.api.PluginContext
+
+class MyPlugin : KtalePlugin {
+  override fun onLoad(context: PluginContext) {}
+  override fun onEnable(context: PluginContext) {}
+  override fun onDisable(context: PluginContext) {}
+}
+```
+
+## 3) Commands
+
+### Kotlin (DSL)
+
+```kotlin
+import ktale.core.commands.Commands
+import ktale.api.commands.CommandResult
+
+context.commands.register(
+  Commands.command("ping") {
+    aliases("p")
+    execute { CommandResult.Success }
+  }
+)
+```
+
+### Java (fluent)
+
+```java
+ctx.getCommands().register(
+  Commands.command("ping")
+    .aliases("p")
+    .executor(c -> CommandResult.Success.INSTANCE)
+    .build()
+);
+```
+
+### Plug-and-play (standalone host)
+
+If you use the standalone host, you can avoid manual registration:
+
+```java
+@AutoCommand
+public final class Ping implements CommandDefinition {
+  public String getName() { return "ping"; }
+  public java.util.Set<String> getAliases() { return java.util.Collections.emptySet(); }
+  public String getDescription() { return null; }
+  public Permission getPermission() { return null; }
+  public CommandResult execute(CommandContext ctx) { return CommandResult.Success.INSTANCE; }
+}
+```
+
+The host scans and registers these automatically.
+
+## 4) Events / listeners
+
+### Manual subscription
+
+Kotlin:
+
+```kotlin
+import ktale.api.events.subscribe
+
+context.events.subscribe<MyEvent> { e ->
+  context.logger.info("got event")
+}
+```
+
+Java:
+
+```java
+ctx.getEvents().subscribe(MyEvent.class, EventPriority.NORMAL, (EventListener<MyEvent>) e -> {
+  ctx.getLogger().info("got event");
+});
+```
+
+### Plug-and-play listeners (standalone host)
+
+```java
+public final class MyListeners {
+  @SubscribeEvent(MyEvent.class)
+  public void on(MyEvent e) {
+    // ...
+  }
+}
+```
+
+## 5) Prefabs
+
+Prefabs are **host-dependent** and exposed as an optional capability:
+
+```kotlin
+val store = context.prefabs
+if (store != null) {
+  val ids = store.list()
+  // load/save/delete prefabs by Key
+}
+```
+
+The standalone host currently does not provide a prefab store by default (it can be added later as a platform capability).
+
+## 6) Models, attributes, containers, items (capabilities)
+
+KTale models these features without committing to a specific server API:
+
+- **IDs are opaque strings** via `ktale.api.identity.Key`
+  - Example ID: `Cloth_Block_Wool_Blue`
+  - KTale preserves the string verbatim.
+- **Models** via `HasModel` (keyed)
+- **Stats** via `HasAttributes` / `Attribute` (health/mana are expected keys)
+- **Containers** via `Container` / `ContainerKind` (equipment/backpack/brewery bag are kinds)
+- **Items** via `ItemStack` (type is a `Key`)
+
+## 7) Testing without a real server
+
+Use the deterministic fake platform:
+
+```kotlin
+import ktale.platform.fake.FakeServer
+
+val server = FakeServer()
+val ctx = server.createContext("demo")
+
+// register commands/events/schedules
+// advance clock / run scheduler deterministically
+```
+
+This is how you keep plugin logic testable even before a real Hytale server exists.
+
+## 8) Standalone host run (optional)
+
+If you’re experimenting with KTale as a **bundled server distribution**, the standalone host can load jars and auto-register:
+
+- reads `ktale-plugin.properties`
+- resolves `.dependencies` / `.repositories`
+  - supports repo auth via env var names
+- builds an isolated classloader
+- runs lifecycle and auto-registration
+
+See:
+
+- [Standalone host](./standalone-host.mdx)
+- [Dependency resolution](./dependency-resolution.mdx)
+- [Auto-registration](./auto-registration.mdx)
+
+

@@ -1,0 +1,44 @@
+---
+title: Java plugin usage
+---
+
+KTale is designed so Java plugins can use the core APIs without Kotlin-only types.
+
+## Example usage
+
+```java
+import ktale.api.PluginContext;
+import ktale.api.commands.CommandContext;
+import ktale.api.commands.CommandResult;
+import ktale.api.events.EventListener;
+import ktale.api.events.EventPriority;
+import ktale.core.commands.Commands;
+
+import java.time.Duration;
+
+public final class JavaUsage {
+  public static void demo(PluginContext ctx) {
+    // Services
+    ctx.getServices().register(String.class, "hello");
+
+    // Events (Class + EventListener)
+    ctx.getEvents().subscribe(MyEvent.class, EventPriority.NORMAL, (EventListener<MyEvent>) e ->
+      ctx.getLogger().info("event!")
+    );
+
+    // Commands (fluent builder in ktale-core)
+    ctx.getCommands().register(
+      Commands.command("ping")
+        .executor((CommandContext c) -> CommandResult.Success.INSTANCE)
+        .build()
+    );
+
+    // Scheduler (Runnable + java.time.Duration)
+    ctx.getScheduler().runSyncDelayed(Duration.ofMillis(250), () -> ctx.getLogger().info("tick"));
+  }
+
+  public static final class MyEvent implements ktale.api.events.Event {}
+}
+```
+
+

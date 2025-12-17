@@ -1,0 +1,40 @@
+---
+title: Events
+---
+
+## Contracts
+
+- `EventBus` is synchronous and deterministic by default (in `ktale-core`).
+- Events are plain objects implementing `ktale.api.events.Event`.
+- Cancellation is capability-based (`Cancellable`).
+
+## Subscribe (Kotlin)
+
+```kotlin
+context.events.subscribe<MyEvent> { e ->
+  // ...
+}
+```
+
+## Subscribe (Java)
+
+```java
+ctx.getEvents().subscribe(MyEvent.class, EventPriority.NORMAL, (EventListener<MyEvent>) e -> {
+  // ...
+});
+```
+
+## Auto-registration (standalone host)
+
+If using the standalone host, you can annotate methods with `@SubscribeEvent` and let the host auto-register:
+
+```java
+public final class MyListeners {
+  @SubscribeEvent(value = MyEvent.class, priority = EventPriority.NORMAL)
+  public void on(MyEvent e) { }
+}
+```
+
+See [Auto-registration](./auto-registration.mdx).
+
+

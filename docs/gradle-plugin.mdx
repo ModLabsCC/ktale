@@ -1,0 +1,40 @@
+---
+title: Gradle plugin (dependency manifest)
+---
+
+KTale includes a Gradle plugin that writes dependency manifests into your jar so a standalone host can download them.
+
+## Plugin id
+
+`cc.modlabs.ktale-deps`
+
+## Usage (Gradle Kotlin DSL)
+
+```kotlin
+plugins {
+  id("cc.modlabs.ktale-deps")
+}
+
+ktaleDeps {
+  // extra deps to record
+  deliver("com.foo:bar:1.2.3")
+
+  // extra repos
+  repository("jitpack", "https://jitpack.io/")
+
+  // repo with auth (env var names only)
+  repositoryWithAuth("private", "https://repo.example.com/maven/", "REPO_USER", "REPO_PASS")
+
+  // optional: standalone host descriptor
+  pluginId.set("my-plugin")
+  mainClass.set("com.example.MyPlugin")
+}
+```
+
+## Files emitted into the jar
+
+- `.dependencies`
+- optional `.repositories`
+- optional `ktale-plugin.properties` (if `pluginId` + `mainClass` are set)
+
+
