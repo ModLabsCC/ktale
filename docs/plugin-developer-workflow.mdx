@@ -40,6 +40,19 @@ dependencies {
 
 If you want a clean, unshaded jar and let the standalone host download deps:
 
+#### Resolve the Gradle plugin
+
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven("https://nexus.modlabs.cc/repository/maven-public/")
+    mavenLocal()
+  }
+}
+```
+
 ```kotlin
 plugins {
   id("cc.modlabs.ktale-deps")

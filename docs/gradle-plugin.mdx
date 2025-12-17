@@ -10,6 +10,23 @@ KTale includes a Gradle plugin that writes dependency manifests into your jar so
 
 ## Usage (Gradle Kotlin DSL)
 
+### Resolve the plugin
+
+Add the ModLabs repo to `pluginManagement`:
+
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven("https://nexus.modlabs.cc/repository/maven-public/")
+    mavenLocal()
+  }
+}
+```
+
+### Configure `ktaleDeps`
+
 ```kotlin
 plugins {
   id("cc.modlabs.ktale-deps")

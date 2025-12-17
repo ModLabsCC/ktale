@@ -18,6 +18,21 @@ dependencies {
 }
 ```
 
+## Gradle plugin repositories (if using `cc.modlabs.ktale-deps`)
+
+If you use the KTale Gradle plugin (`cc.modlabs.ktale-deps`), ensure your build can resolve it:
+
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven("https://nexus.modlabs.cc/repository/maven-public/")
+    mavenLocal()
+  }
+}
+```
+
 ## Your first plugin
 
 KTale plugin entrypoint is `ktale.api.KtalePlugin`:
