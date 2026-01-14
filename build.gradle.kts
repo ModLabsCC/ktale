@@ -30,10 +30,14 @@ tasks.test {
 
 kotlin {
     val requestedJvmTargetStr: String = (System.getProperty("ktale_jvm_target") ?: "25").trim()
+    val isTestBuild: Boolean = gradle.startParameter.taskNames.any { it.contains("test", ignoreCase = true) || it.contains("check", ignoreCase = true) }
 
     // Hytale plugins are expected to run on JVM 25.
     // Kotlin may lag behind in classfile targets; clamp to the max supported by Kotlin (currently 24).
-    val effectiveJvmTargetStr: String = try {
+    val effectiveJvmTargetStr: String = if (isTestBuild) {
+        // Tests should run on JDK 21; emit JVM 21 bytecode so the test JVM can load KTale classes.
+        "21"
+    } else try {
         org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(requestedJvmTargetStr)
         requestedJvmTargetStr
     } catch (_: Throwable) {
@@ -57,6 +61,11 @@ java {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
     withSourcesJar()
+}
+
+// Ensure tests run on JDK 21 explicitly (even if the developer machine has other JDKs installed).
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) })
 }
 
 publishing {
