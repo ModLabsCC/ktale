@@ -86,9 +86,111 @@ On the asset side you create UI layout files, e.g.:
 - `resources/Common/UI/Custom/Pages/ExampleSettings.ui`
 
 In the Java example you posted, the page loads:
-- `cmd.append("Pages/ChatCustomization_Editor.ui")`
+- `cmd.append("Pages/ExampleSettings.ui")`
 
 So your asset path should match whatever you put into `cmd.page(...)` / `cmd.append(...)`.
+
+### Example: `Pages/ExampleSettings.ui`
+Below is a **minimal** (but working-structure) example that includes the IDs referenced by your Java code:
+- `#PrefixField`, `#NicknameField`, `#PronounsField`, `#SuffixField`
+- `#PrefixBold #CheckBox` (and friends)
+- `#TabEditor`, `#TabGradients`, `#TabHelp`
+- `#SaveButton`, `#CancelButton`
+
+```text
+// File: resources/Common/UI/Custom/Pages/ExampleSettings.ui
+$C = "../Common.ui";
+
+$C.@PageOverlay {
+  $C.@Container {
+    Anchor: (Width: 950, Height: 950);
+
+    #Title {
+      Group {
+        $C.@Title {
+          @Text = "Chat Customization";
+        }
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 30, Right: 30, Top: 15, Bottom: 15);
+
+      // Tabs
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 50, Bottom: 15);
+
+        $C.@TextButton #TabEditor { Text: "Editor"; Anchor: (Width: 120, Height: 46, Right: 10); }
+        $C.@TextButton #TabGradients { Text: "Gradients"; Anchor: (Width: 160, Height: 46, Right: 10); }
+        $C.@TextButton #TabHelp { Text: "Commands"; Anchor: (Width: 170, Height: 46); }
+      }
+
+      // Editor tab
+      Group #EditorContent {
+        LayoutMode: Top;
+
+        // Inputs
+        Group { LayoutMode: Top;
+          $C.@TextField #PrefixField { Anchor: (Width: 220, Height: 38); }
+          $C.@TextField #NicknameField { Anchor: (Width: 220, Height: 38); }
+          $C.@TextField #PronounsField { Anchor: (Width: 220, Height: 38); }
+          $C.@TextField #SuffixField { Anchor: (Width: 220, Height: 38); }
+        }
+
+        // Checkbox groups (KTale paths use "#PrefixBold #CheckBox.Value")
+        Group { LayoutMode: Left;
+          $C.@CheckBoxWithLabel #PrefixBold { @Text = "Bold"; }
+          $C.@CheckBoxWithLabel #PrefixItalic { @Text = "Italic"; }
+          $C.@CheckBoxWithLabel #PrefixUnderline { @Text = "Underline"; }
+        }
+
+        Group { LayoutMode: Left;
+          $C.@CheckBoxWithLabel #NameBold { @Text = "Bold"; }
+          $C.@CheckBoxWithLabel #NameItalic { @Text = "Italic"; }
+          $C.@CheckBoxWithLabel #NameUnderline { @Text = "Underline"; }
+        }
+
+        Group { LayoutMode: Left;
+          $C.@CheckBoxWithLabel #PronounsBold { @Text = "Bold"; }
+          $C.@CheckBoxWithLabel #PronounsItalic { @Text = "Italic"; }
+          $C.@CheckBoxWithLabel #PronounsUnderline { @Text = "Underline"; }
+        }
+
+        Group { LayoutMode: Left;
+          $C.@CheckBoxWithLabel #SuffixBold { @Text = "Bold"; }
+          $C.@CheckBoxWithLabel #SuffixItalic { @Text = "Italic"; }
+          $C.@CheckBoxWithLabel #SuffixUnderline { @Text = "Underline"; }
+        }
+
+        Group { LayoutMode: Left;
+          $C.@CheckBoxWithLabel #MessageBold { @Text = "Bold"; }
+          $C.@CheckBoxWithLabel #MessageItalic { @Text = "Italic"; }
+          $C.@CheckBoxWithLabel #MessageUnderline { @Text = "Underline"; }
+        }
+      }
+
+      // Other tabs (toggled via cmd.set("#X.Visible", ...))
+      Group #GradientsContent { Visible: false; LayoutMode: Top; }
+      Group #HelpContent { Visible: false; LayoutMode: Top; }
+
+      // Bottom buttons
+      Group {
+        LayoutMode: Right;
+        Anchor: (Height: 54, Top: 10);
+
+        $C.@TextButton #SaveButton { Text: "Save"; Anchor: (Right: 12); }
+        $C.@CancelTextButton #CancelButton { Text: "Cancel"; }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}
+```
+
+This example intentionally omits lots of styling/layout details; the important part is that the **node IDs** match what you use in `cmd.set(...)` and `events.addEventBinding(...)`.
 
 ### Matching event names
 You’ll notice patterns like:
