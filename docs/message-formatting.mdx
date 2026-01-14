@@ -1,0 +1,63 @@
+---
+title: Message formatting
+---
+
+KTale provides a small MiniMessage-like formatting layer on top of Hytale’s `com.hypixel.hytale.server.core.Message`.
+
+### Quick start (recommended)
+Use the `Player.send(String)` extension. It parses MiniMessage-like tags and sends the resulting `Message`.
+
+```kotlin
+import cc.modlabs.ktale.ext.send
+
+player.send("<red>Hello <bold>World</bold></red>")
+player.send("<gradient:red:blue>Gradient text</gradient>")
+player.send("<#FFAA00>Hex colors</#FFAA00>")
+```
+
+### Raw vs formatted
+- **Raw** (no parsing):
+
+```kotlin
+import cc.modlabs.ktale.ext.sendRaw
+
+player.sendRaw("This will not parse <red>tags</red>")
+```
+
+- **Formatted** (MiniMessage-like):
+
+```kotlin
+import cc.modlabs.ktale.ext.sendMini
+
+player.sendMini("<green>Tags are parsed here</green>")
+```
+
+### Building messages directly
+If you want a `Message` object (e.g. to insert into other messages), use `MessageBuilder`:
+
+```kotlin
+import cc.modlabs.ktale.text.MessageBuilder
+
+val msg = MessageBuilder.fromMiniMessage("<yellow>Warning:</yellow> <red>Danger</red>")
+player.sendMessage(msg)
+```
+
+Or the fluent builder API:
+
+```kotlin
+import cc.modlabs.ktale.text.MessageBuilder
+
+val msg = MessageBuilder.builder()
+  .miniMessage("<blue>Welcome</blue>")
+  .text(" to the server!")
+  .build()
+```
+
+### Supported tags (current)
+- Colors: `<red>`, `<green>`, etc. + hex colors like `<#RRGGBB>`
+- Formatting: `<bold>`, `<italic>`, `<monospace>`
+- Gradients: `<gradient:color1:color2>...</gradient>` (color names or hex)
+- Links: `<link:https://...>text</link>` (maps to `Message.link(...)`)
+
+Anything else is currently ignored (by design) to keep this lightweight and aligned with the Hytale `Message` API.
+
