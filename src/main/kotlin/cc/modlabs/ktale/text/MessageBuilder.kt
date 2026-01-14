@@ -16,8 +16,8 @@ import java.util.regex.Pattern
  * player.sendMessage(msg)
  * ```
  */
-public class MessageBuilder {
-    public companion object {
+class MessageBuilder {
+    companion object {
         // Pattern to match MiniMessage tags: <tag> or <tag:value> or </tag>
         private val TAG_PATTERN: Pattern = Pattern.compile("<([/]?)([^>]+)>")
 
@@ -53,7 +53,7 @@ public class MessageBuilder {
          * @param miniMessage The MiniMessage formatted string
          * @return A Hytale [Message]
          */
-        public fun fromMiniMessage(miniMessage: String): Message {
+        fun fromMiniMessage(miniMessage: String): Message {
             if (!miniMessage.contains('<')) {
                 // No tags, return simple raw message
                 return Message.raw(miniMessage)
@@ -274,61 +274,61 @@ public class MessageBuilder {
     private var message: Message = Message.empty()
 
     /** Adds raw text to the message. */
-    public fun text(text: String): MessageBuilder {
+    fun text(text: String): MessageBuilder {
         message.insert(text)
         return this
     }
 
     /** Adds a MiniMessage-like formatted text. */
-    public fun miniMessage(text: String): MessageBuilder {
+    fun miniMessage(text: String): MessageBuilder {
         val parsed = fromMiniMessage(text)
         message.insert(parsed)
         return this
     }
 
     /** Sets the color. */
-    public fun color(color: String): MessageBuilder {
+    fun color(color: String): MessageBuilder {
         message.color(color)
         return this
     }
 
     /** Sets the color. */
-    public fun color(color: Color): MessageBuilder {
+    fun color(color: Color): MessageBuilder {
         message.color(color)
         return this
     }
 
     /** Sets bold formatting. */
-    public fun bold(bold: Boolean = true): MessageBuilder {
+    fun bold(bold: Boolean = true): MessageBuilder {
         message.bold(bold)
         return this
     }
 
     /** Sets italic formatting. */
-    public fun italic(italic: Boolean = true): MessageBuilder {
+    fun italic(italic: Boolean = true): MessageBuilder {
         message.italic(italic)
         return this
     }
 
     /** Sets monospace formatting. */
-    public fun monospace(monospace: Boolean = true): MessageBuilder {
+    fun monospace(monospace: Boolean = true): MessageBuilder {
         message.monospace(monospace)
         return this
     }
 
     /** Sets a link. */
-    public fun link(url: String): MessageBuilder {
+    fun link(url: String): MessageBuilder {
         message.link(url)
         return this
     }
 
     /** Inserts another message. */
-    public fun insert(other: Message): MessageBuilder {
+    fun insert(other: Message): MessageBuilder {
         message.insert(other)
         return this
     }
 
     /** Builds the final [Message]. */
-    public fun build(): Message = message
+    fun build(): Message = message
 }
 

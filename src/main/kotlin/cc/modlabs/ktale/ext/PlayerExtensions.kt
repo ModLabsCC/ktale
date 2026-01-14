@@ -7,7 +7,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player
 /**
  * Sends a pre-built [Message] to this player.
  */
-public fun Player.send(message: Message) {
+fun Player.send(message: Message) {
     this.sendMessage(message)
 }
 
@@ -20,17 +20,17 @@ public fun Player.send(message: Message) {
  * player.send("<red>Hello <bold>World</bold></red>")
  * ```
  */
-public fun Player.send(text: String) {
+fun Player.send(text: String) {
     this.send(MessageBuilder.fromMiniMessage(text))
 }
 
 /** Sends raw text to this player (no tag parsing). */
-public fun Player.sendRaw(text: String) {
+fun Player.sendRaw(text: String) {
     this.send(Message.raw(text))
 }
 
 /** Explicit MiniMessage-like send (same as [send]). */
-public fun Player.sendMini(text: String) {
+fun Player.sendMini(text: String) {
     this.send(MessageBuilder.fromMiniMessage(text))
 }
 
