@@ -1,0 +1,107 @@
+---
+title: Custom GUIs
+---
+
+This guide shows how to build **custom UI pages** (settings screens, menus, etc.) for Hytale using KTale helpers.
+
+KTale wraps Hytale’s UI API with a tiny DSL so you write less boilerplate:
+- `UiPath` helpers for `"#Node.Value"` etc.
+- `UICommandBuilder` / `UIEventBuilder` convenience extensions
+- `CustomUIPage<T>` base class with `update { ... }` helpers
+
+### Mental model (how Hytale custom UI works)
+- Your page is a class extending `InteractiveCustomUIPage<T>`.
+- `build(ref, cmd, events, store)` is called to **open** (or rebuild) the page:
+  - `cmd.append("Pages/MyPage.ui")` points to a `.ui` asset
+  - `cmd.set(...)` initializes values/visibility/styles
+  - `events.addEventBinding(...)` wires UI events to a data payload (`EventData`)
+- When something happens (button click, value change), Hytale sends your page a decoded `T` object and calls `handleDataEvent(...)`.
+
+### Minimal Kotlin example (recommended)
+This example uses `CustomUIPage` + the KTale UI DSL.
+
+```kotlin
+import cc.modlabs.ktale.ui.*
+import com.hypixel.hytale.codec.Codec
+import com.hypixel.hytale.codec.KeyedCodec
+import com.hypixel.hytale.codec.builder.BuilderCodec
+import com.hypixel.hytale.component.Ref
+import com.hypixel.hytale.component.Store
+import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime
+import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder
+import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder
+import com.hypixel.hytale.server.core.universe.PlayerRef
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
+
+class ExampleSettingsGui(playerRef: PlayerRef) :
+  CustomUIPage<ExampleSettingsGui.Data>(playerRef, CustomPageLifetime.CanDismiss, Data.CODEC) {
+
+  private var nickname: String = ""
+
+  override fun build(ref: Ref<EntityStore>, cmd: UICommandBuilder, events: UIEventBuilder, store: Store<EntityStore>) {
+    ui(ref, store, cmd, events) {
+      cmd.page("Pages/ExampleSettings.ui")
+      cmd.value("#NicknameField", nickname)
+
+      // Bind: when the field changes, Hytale sends Data(nickname = <value>)
+      events.onValueChanged("#NicknameField", "Nickname")
+
+      // Bind: button click sets Action="Save"
+      events.onActivate("#SaveButton", "Save")
+    }
+  }
+
+  override fun onDataEvent(ref: Ref<EntityStore>, store: Store<EntityStore>, data: Data) {
+    data.nickname?.let { nickname = it }
+
+    if (data.action == "Save") {
+      // persist settings here...
+      close()
+      return
+    }
+
+    // Update preview / UI after any data changes:
+    update {
+      value("#NicknameField", nickname)
+    }
+  }
+
+  class Data {
+    companion object {
+      val CODEC: BuilderCodec<Data> =
+        BuilderCodec.builder(Data::class.java, ::Data)
+          .addField(KeyedCodec(UiEventKey.data("Nickname"), Codec.STRING), { d, v -> d.nickname = v }, { d -> d.nickname })
+          .addField(KeyedCodec(UiEventKey.ACTION, Codec.STRING), { d, v -> d.action = v }, { d -> d.action })
+          .build()
+    }
+
+    var nickname: String? = null
+    var action: String? = null
+  }
+}
+```
+
+### Asset side (.ui files)
+On the asset side you create UI layout files, e.g.:
+- `resources/Common/UI/Custom/Pages/ExampleSettings.ui`
+
+In the Java example you posted, the page loads:
+- `cmd.append("Pages/ChatCustomization_Editor.ui")`
+
+So your asset path should match whatever you put into `cmd.page(...)` / `cmd.append(...)`.
+
+### Matching event names
+You’ll notice patterns like:
+- Data keys: `@Prefix`, `@Nickname`, …
+- Actions: `"Action" = "Save"`, `"Action" = "Cancel"`, …
+
+KTale provides:
+- `UiEventKey.data("Prefix")` → `"@Prefix"`
+- `UiEventKey.ACTION` → `"Action"`
+
+### Next steps
+If you want, we can add higher-level helpers like:
+- automatic “tab switching” helpers (`cmd.visible("#Tab", ...)`)
+- typed action enums
+- helper builders for common widgets (checkbox groups, color pickers)
+

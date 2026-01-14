@@ -7,8 +7,15 @@ plugins {
     id("org.jetbrains.dokka") version "2.0.0"
 }
 
+import java.util.Calendar
+import java.util.TimeZone
+
 group = "cc.modlabs"
-version = System.getenv("VERSION_OVERRIDE") ?: "1.0-SNAPSHOT"
+version = System.getenv("VERSION_OVERRIDE") ?: Calendar.getInstance(TimeZone.getTimeZone("UTC")).run {
+    "${get(Calendar.YEAR)}.${get(Calendar.MONTH) + 1}.${get(Calendar.DAY_OF_MONTH)}.${
+        String.format("%02d%02d", get(Calendar.HOUR_OF_DAY), get(Calendar.MINUTE))
+    }"
+}
 
 repositories {
     maven("https://nexus.modlabs.cc/repository/maven-mirrors/")
@@ -30,7 +37,11 @@ tasks.test {
 
 kotlin {
     val requestedJvmTargetStr: String = (System.getProperty("ktale_jvm_target") ?: "25").trim()
-    val isTestBuild: Boolean = gradle.startParameter.taskNames.any { it.contains("test", ignoreCase = true) || it.contains("check", ignoreCase = true) }
+    val isTestBuild: Boolean = gradle.startParameter.taskNames.any {
+        it.equals("build", ignoreCase = true) ||
+            it.contains("test", ignoreCase = true) ||
+            it.contains("check", ignoreCase = true)
+    }
 
     // Hytale plugins are expected to run on JVM 25.
     // Kotlin may lag behind in classfile targets; clamp to the max supported by Kotlin (currently 24).
