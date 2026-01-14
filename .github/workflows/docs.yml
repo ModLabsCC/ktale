@@ -26,6 +26,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+          cache: gradle
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -33,13 +34,13 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Build Dokka (multi-module)
-        run: ./gradlew dokkaHtmlMultiModule --no-daemon
+      - name: Build Dokka (single-module)
+        run: ./gradlew dokkaHtml --no-daemon
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/dokka/htmlMultiModule
+          path: build/dokka/html
 
   deploy:
     needs: build
@@ -51,5 +52,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
 
