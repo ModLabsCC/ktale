@@ -20,7 +20,7 @@ KTale is published as a Maven artifact:
 
 ```kotlin
 repositories {
-  maven("https://nexus.modlabs.cc/repository/maven-public/")
+  maven("https://nexus.modlabs.cc/repository/maven-mirrors/")
 }
 
 dependencies {
