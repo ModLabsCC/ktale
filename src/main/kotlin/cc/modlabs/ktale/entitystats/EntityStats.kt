@@ -54,10 +54,19 @@ object EntityStats {
         return out
     }
 
-    /** Returns the index of the stat with [id], or -1 if not present. */
+    /**
+     * Returns the index of the stat with [id], or -1 if not present.
+     *
+     * Iterates the stat map directly instead of building a full snapshot.
+     */
     @JvmStatic
-    fun getEntityStatIndex(statMap: EntityStatMap, id: String): Int =
-        statMap.metaSnapshot().byId[id]?.index ?: -1
+    fun getEntityStatIndex(statMap: EntityStatMap, id: String): Int {
+        for (i in 0 until statMap.size()) {
+            val v = statMap.get(i) ?: continue
+            if (v.id == id) return i
+        }
+        return -1
+    }
 
     /** Returns the index of the stat with [type], or -1 if not present. */
     @JvmStatic
@@ -114,22 +123,22 @@ object EntityStats {
     /** Sets current value to min for [id] if present; no-op if missing. */
     @JvmStatic
     fun setMinStatValue(statMap: EntityStatMap, id: String) {
-        val v = getMinStatValue(statMap, id)
-        if (v >= 0f) setStatValue(statMap, id, v)
+        val esv = getEntityStatValue(statMap, id) ?: return
+        setStatValue(statMap, id, esv.min)
     }
 
     /** Sets current value to max for [id] if present; no-op if missing. */
     @JvmStatic
     fun setMaxStatValue(statMap: EntityStatMap, id: String) {
-        val v = getMaxStatValue(statMap, id)
-        if (v >= 0f) setStatValue(statMap, id, v)
+        val esv = getEntityStatValue(statMap, id) ?: return
+        setStatValue(statMap, id, esv.max)
     }
 
     /** Sets current value to max+1 for [id] if present; no-op if missing. */
     @JvmStatic
     fun setMaxStatValuePlusOne(statMap: EntityStatMap, id: String) {
-        val v = getMaxStatValue(statMap, id)
-        if (v >= 0f) setStatValue(statMap, id, v + 1f)
+        val esv = getEntityStatValue(statMap, id) ?: return
+        setStatValue(statMap, id, esv.max + 1f)
     }
 }
 

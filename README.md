@@ -34,7 +34,7 @@ dependencies {
 
 KTale is organized into small packages (see the API reference for full details):
 
-- **`cc.modlabs.ktale.ext`**: Kotlin extensions for common plugin tasks (messaging, titles, notifications, permissions, teleport helpers, etc.).
+- **`cc.modlabs.ktale.ext`**: Kotlin extensions for common plugin tasks (messaging, titles, notifications, permissions, teleport helpers, vector math, etc.).
 - **`cc.modlabs.ktale.text`**: A small MiniMessage-like layer for building Hytale `Message` objects (`MessageBuilder`).
 - **`cc.modlabs.ktale.ui`**: Helpers for Hytale custom UI:
   - `UiPath` path helpers (e.g. `"#Node.Value"`)
@@ -42,6 +42,7 @@ KTale is organized into small packages (see the API reference for full details):
   - `CustomUIPage<T>` base class + `ui { ... }` build scope
 - **`cc.modlabs.ktale.entitystats`**: Entity stat helpers (`EntityStats`, `Player.entityStatMapOrNull()`, `EntityStatMap.metaSnapshot()`, etc.).
 - **`cc.modlabs.ktale.blocks`**: Block utilities (drop computation helpers and small type heuristics like `BlockType.isOre()`).
+- **`cc.modlabs.ktale.util`**: Reusable utilities like `Cooldowns<K>` for thread-safe ability/command cooldown tracking.
 
 ## Quick examples
 
@@ -53,6 +54,32 @@ import cc.modlabs.ktale.ext.send
 player.send("<red>Hello <bold>World</bold></red>")
 player.send("<gradient:red:blue>Gradient text</gradient>")
 player.send("<#FFAA00>Hex colors</#FFAA00>")
+```
+
+### Vector math
+
+```kotlin
+import cc.modlabs.ktale.ext.*
+
+val a = vec3d(1.0, 2.0, 3.0)
+val b = vec3d(4.0, 5.0, 6.0)
+val sum = a + b
+val dist = a.distanceTo(b)
+val mid = a.lerp(b, 0.5)
+val dir = (b - a).normalized()
+```
+
+### Cooldowns
+
+```kotlin
+import cc.modlabs.ktale.util.Cooldowns
+
+val abilityCooldowns = Cooldowns<UUID>()
+
+if (abilityCooldowns.isReady(player.uuid!!)) {
+    // fire ability
+    abilityCooldowns.set(player.uuid!!, 3000L) // 3 second cooldown
+}
 ```
 
 ### Build a custom UI page

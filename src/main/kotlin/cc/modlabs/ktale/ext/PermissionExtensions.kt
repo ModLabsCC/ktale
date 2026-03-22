@@ -9,10 +9,7 @@ import com.hypixel.hytale.server.core.permissions.PermissionsModule
  * @param permission The permission string to be added to the player.
  */
 fun Player.addPermission(permission: String) {
-    val permSet = emptySet<String>().toMutableSet()
-    permSet += permission
-    val permModule = PermissionsModule.get()
-    permModule.addUserPermission(this.uuid!!, permSet)
+    PermissionsModule.get().addUserPermission(this.uuid!!, setOf(permission))
 }
 
 /**
@@ -21,8 +18,7 @@ fun Player.addPermission(permission: String) {
  * @param permissions A set of permission strings to be added to the player.
  */
 fun Player.addPermissions(permissions: Set<String>) {
-    val permModule = PermissionsModule.get()
-    permModule.addUserPermission(this.uuid!!, permissions)
+    PermissionsModule.get().addUserPermission(this.uuid!!, permissions)
 }
 
 /**
@@ -31,10 +27,7 @@ fun Player.addPermissions(permissions: Set<String>) {
  * @param permission The permission string to be removed from the player.
  */
 fun Player.removePermission(permission: String) {
-    val permSet = emptySet<String>().toMutableSet()
-    permSet += permission
-    val permModule = PermissionsModule.get()
-    permModule.removeUserPermission(this.uuid!!, permSet)
+    PermissionsModule.get().removeUserPermission(this.uuid!!, setOf(permission))
 }
 
 /**
@@ -43,8 +36,7 @@ fun Player.removePermission(permission: String) {
  * @param permissions A set of permission strings to be removed from the player.
  */
 fun Player.removePermissions(permissions: Set<String>) {
-    val permModule = PermissionsModule.get()
-    permModule.removeUserPermission(this.uuid!!, permissions)
+    PermissionsModule.get().removeUserPermission(this.uuid!!, permissions)
 }
 
 /**
@@ -53,8 +45,7 @@ fun Player.removePermissions(permissions: Set<String>) {
  * @param groupName The name of the permission group to add the player to.
  */
 fun Player.addToPermGroup(groupName: String) {
-    val permModule = PermissionsModule.get()
-    permModule.addUserToGroup(this.uuid!!, groupName)
+    PermissionsModule.get().addUserToGroup(this.uuid!!, groupName)
 }
 
 /**
@@ -63,8 +54,7 @@ fun Player.addToPermGroup(groupName: String) {
  * @param groupName The name of the permission group from which the player will be removed.
  */
 fun Player.removeFromPermGroup(groupName: String) {
-    val permModule = PermissionsModule.get()
-    permModule.removeUserFromGroup(this.uuid!!, groupName)
+    PermissionsModule.get().removeUserFromGroup(this.uuid!!, groupName)
 }
 
 /**
@@ -73,6 +63,5 @@ fun Player.removeFromPermGroup(groupName: String) {
  * @return A set of strings representing the names of the permission groups that the player belongs to.
  */
 fun Player.listAllPermGroups(): Set<String> {
-    val permModule = PermissionsModule.get()
-    return permModule.getGroupsForUser(this.uuid!!)
+    return PermissionsModule.get().getGroupsForUser(this.uuid!!)
 }

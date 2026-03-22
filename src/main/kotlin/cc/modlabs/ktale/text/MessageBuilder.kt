@@ -262,8 +262,10 @@ class MessageBuilder {
             return null
         }
 
+        private val HEX_PATTERN: Regex = Regex("#[0-9A-Fa-f]{6}")
+
         private fun isValidHex(hex: String): Boolean =
-            hex.matches(Regex("#[0-9A-Fa-f]{6}"))
+            hex.matches(HEX_PATTERN)
 
         private fun parseTagName(tagContent: String): String =
             tagContent.split(':')[0].lowercase()

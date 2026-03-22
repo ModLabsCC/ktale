@@ -24,16 +24,18 @@ enum class EntityStatType {
     STAMINA,
     STAMINA_REGEN_DELAY;
 
-    /** Returns the Hytale stat id for this enum value. */
-    fun id(): String {
+    private val cachedId: String = run {
         val parts = name.lowercase(Locale.ROOT).split("_")
-        val result = StringBuilder()
+        val result = StringBuilder(name.length)
         for (part in parts) {
             if (part.isEmpty()) continue
             result.append(part[0].uppercaseChar()).append(part.substring(1))
         }
-        return result.toString()
+        result.toString()
     }
+
+    /** Returns the Hytale stat id for this enum value. */
+    fun id(): String = cachedId
 
     companion object {
         private val BY_ID: Map<String, EntityStatType> =
